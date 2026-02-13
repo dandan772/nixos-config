@@ -3,11 +3,9 @@
 {
   nixpkgs.config.allowUnfree = true;
 
-  programs.firefox.enable = true;
-  programs.fish.enable = true;
 
+  programs.firefox.enable = true;
+  
   environment.systemPackages = with pkgs; [
-    fish
-    git
   ];
 }

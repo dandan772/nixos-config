@@ -9,4 +9,8 @@
       set -g fish_greeting
     '';
   };
+
+  home.packages = with pkgs; [
+    git
+  ];
 }

@@ -6,5 +6,6 @@
     description = "Dan";
     extraGroups = [ "networkmanager" "wheel" ];
     shell = pkgs.fish;
+    ignoreShellProgramCheck = true;
   };
 }
