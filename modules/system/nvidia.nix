@@ -10,7 +10,9 @@
     powerManagement.enable = true;
     open = false;
 
-    prime = {
+  nvidiaPersistenced = true;
+   
+  prime = {
       offload.enable = true;
       amdgpuBusId = "PCI:4:0:0";
       nvidiaBusId = "PCI:1:0:0";
