@@ -11,6 +11,7 @@
     ../../modules/system/bluetooth.nix
     ../../modules/system/nix.nix
     ../../modules/system/nvidia.nix
+    ../../modules/system/ryzenadj.nix
 
     ../../modules/system/gnome-base.nix
     ../../modules/system/display-manager.nix
