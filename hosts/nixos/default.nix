@@ -8,6 +8,7 @@
     ../../modules/system/audio.nix
     ../../modules/system/users.nix
     ../../modules/system/packages.nix
+    ../../modules/system/bluetooth.nix
 
     ../../modules/system/gnome-base.nix
     ../../modules/system/display-manager.nix
