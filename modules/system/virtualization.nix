@@ -2,11 +2,11 @@
 
 {
   # Habilita libvirtd
-  virtualization.libvirtd.enable = true;
-  virtualization.libvirtd.socketEnable = true;
+  virtualisation.libvirtd.enable = true;
+  virtualisation.libvirtd.socketEnable = true;
 
   # QEMU
-  virtualization.qemu.package = pkgs.qemu;
+  virtualisation.qemu.package = pkgs.qemu;
 
   # DNS/DHCP se quiser
   services.dnsmasq.enable = true;
