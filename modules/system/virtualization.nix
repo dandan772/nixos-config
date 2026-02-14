@@ -3,18 +3,14 @@
 {
   # Libvirt
   virtualisation.libvirtd.enable = true;
-  virtualisation.libvirtd.socketEnable = true;
 
-  # DNS/DHCP
-  services.dnsmasq.enable = true;
-
-  # Programas
+  # Programas pro sistema
   environment.systemPackages = with pkgs; [
-    virt-manager   # GUI pra gerenciar VMs
-    qemu           # Máquina virtual em si
-    libvirt        # Biblioteca necessária pro virt-manager
+    virt-manager
+    qemu
+    libvirt
   ];
 
-  # Permite que usuários do grupo 'libvirt' usem KVM sem sudo
-  users.groups.libvirt = {};
+  # DNS/DHCP opcional
+  services.dnsmasq.enable = true;
 }
