@@ -5,7 +5,7 @@
 
   virtualisation.qemu.package = pkgs.qemu;
 
-  networking.dnsmasq.enable = true;
+  services.dnsmasq.enable = true;
 
   environment.systemPackages = with pkgs; [
     virt-manager
