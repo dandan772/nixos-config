@@ -14,6 +14,7 @@
     ../../modules/system/ryzenadj.nix
     ../../modules/system/virtualization.nix
     ../../modules/system/flatpak.nix
+    ../../modules/system/niri.nix
 
     ../../modules/system/gnome-base.nix
     ../../modules/system/display-manager.nix
