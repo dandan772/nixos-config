@@ -1,20 +1,17 @@
-# modules/system/virtualization.nix
 { config, pkgs, ... }:
 
 {
-  # Libvirt
-  services.libvirtd.enable = true;
-  services.libvirtd.socketEnable = true;
+  # Habilita libvirtd
+  virtualization.libvirtd.enable = true;
+  virtualization.libvirtd.socketEnable = true;
 
-  # QEMU/KVM
-  virtualisation = {
-    qemu.package = pkgs.qemu;
-  };
+  # QEMU
+  virtualization.qemu.package = pkgs.qemu;
 
   # DNS/DHCP se quiser
   services.dnsmasq.enable = true;
 
-  # Programas pro usuário
+  # Programas
   environment.systemPackages = with pkgs; [
     virt-manager
   ];
