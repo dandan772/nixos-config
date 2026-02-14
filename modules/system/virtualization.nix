@@ -4,14 +4,12 @@
   # Libvirt
   virtualisation.libvirtd.enable = true;
 
-  # QEMU
-  virtualisation.qemu.package = pkgs.qemu;
-
   # DNS/DHCP se quiser
   services.dnsmasq.enable = true;
 
-  # Programas
+  # Programas que você quer ter no sistema
   environment.systemPackages = with pkgs; [
     virt-manager
+    qemu      # opcional, mas não como parte do módulo virtualisation
   ];
 }
