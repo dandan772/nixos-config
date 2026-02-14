@@ -19,4 +19,5 @@
     spiceUSBRedirection.enable = true;
   };
   services.spice-vdagentd.enable = true;
+  services.dnsmasq.enable = true;
 }
