@@ -4,7 +4,7 @@ let
   desiredFlatpaks = [
     "org.onlyoffice.desktopeditors"
     # adiciona outros aqui
-    # "com.discordapp.Discord"
+     "com.discordapp.Discord"
     # "org.mozilla.firefox"
   ];
 in
