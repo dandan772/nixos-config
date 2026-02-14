@@ -1,9 +1,8 @@
 { config, pkgs, ... }:
 
 {
-  # Habilita libvirtd
+  # Libvirt
   virtualisation.libvirtd.enable = true;
-  virtualisation.libvirtd.socketEnable = true;
 
   # QEMU
   virtualisation.qemu.package = pkgs.qemu;
