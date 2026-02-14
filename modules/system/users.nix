@@ -4,7 +4,7 @@
   users.users.dan = {
     isNormalUser = true;
     description = "Dan";
-    extraGroups = [ "libvirt" "networkmanager" "wheel" ];
+    extraGroups = [ "kvm" "libvirt" "networkmanager" "wheel" ];
     shell = pkgs.fish;
     ignoreShellProgramCheck = true;
   };
