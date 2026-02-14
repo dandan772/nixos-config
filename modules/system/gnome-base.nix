@@ -14,5 +14,6 @@
     gnome-weather
     gnome-contacts
     gnome-maps
+    gnome-software
   ];
 }
