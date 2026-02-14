@@ -1,15 +1,16 @@
 { config, pkgs, ... }:
 
 {
-  # Libvirt
+  # Habilita libvirtd
   virtualisation.libvirtd.enable = true;
+  virtualisation.libvirtd.socketEnable = true;
 
   # DNS/DHCP se quiser
   services.dnsmasq.enable = true;
 
-  # Programas que você quer ter no sistema
+  # Programas
   environment.systemPackages = with pkgs; [
     virt-manager
-    qemu      # opcional, mas não como parte do módulo virtualisation
+    qemu
   ];
 }
