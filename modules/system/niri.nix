@@ -24,7 +24,7 @@
     slurp
 
     # File manager
-    thunar
+    xfce.thunar
 
     # Audio
     pavucontrol
