@@ -5,10 +5,10 @@
 
   environment.systemPackages = with pkgs; [
     # Launcher
-    wofi
+    fuzzel
 
     # Terminal
-    foot
+    alacritty
 
     # Status bar
     waybar
