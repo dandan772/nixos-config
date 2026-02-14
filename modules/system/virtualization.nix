@@ -2,7 +2,6 @@
 
 {
   virtualisation.libvirtd.enable = true;
-  virtualisation.libvirtd.socketEnable = true;
 
   services.dnsmasq.enable = true;
 
