@@ -2,13 +2,13 @@
 
 {
   virtualisation.libvirtd.enable = true;
+  virtualisation.libvirtd.socketEnable = true;
+
+  virtualisation.qemu.package = pkgs.qemu;
 
   services.dnsmasq.enable = true;
 
-  virtualisation.libvirtd.enable = true;
-
   environment.systemPackages = with pkgs; [
     virt-manager
-    qemu
   ];
 }
