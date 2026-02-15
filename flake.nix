@@ -32,7 +32,11 @@
             import ./modules/home/dan.nix;
         }
       ];
+
+      # Aqui adiciona os overlays
+      nixpkgs.overlays = [
+        (import ./modules/system/davince.nix)
+      ];
     };
   };
 }
-

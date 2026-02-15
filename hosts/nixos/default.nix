@@ -18,7 +18,6 @@
     ../../modules/system/zram.nix
     ../../modules/system/gnome-base.nix
     ../../modules/system/display-manager.nix
-    ../../modules/system/davince.nix
   ];
 
   system.stateVersion = "25.11";
