@@ -33,7 +33,7 @@
 
         {
           nixpkgs.overlays = [
-            (import ./modules/system/davinci-resolve.nix)
+            (import ./modules/overlays/davinci-resolve.nix)
           ];
         }
       ];
