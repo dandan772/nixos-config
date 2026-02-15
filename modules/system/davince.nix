@@ -1,42 +1,104 @@
-# DaVinci is a FHS wrapper in NixOS, so both the wrapper and binary need changes
-davinci-resolve-studio.override (old: {
-  buildFHSEnv =
-    fhs:
-    (
-      let
-        # This is the actual DaVinci binary, we can run perl here
-        davinci = fhs.passthru.davinci.overrideAttrs (old: {
-          postFixup = ''
-            ${old.postFixup}
-            ${perl}/bin/perl -pi -e <SOME MISTERIOUS REGEX THAT MAY OR MAY NOT DO SOMETHING> $out/bin/resolve
-          '';
-        });
-      in
-      # This part overrides the wrapper, we need to replace all of the instances of ${davinci} with the patched version
-      # Copies the parts from the official nixpkgs derivation that need overriding
-      # https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/by-name/da/davinci-resolve/package.nix
-      old.buildFHSEnv (
-        fhs
-        // {
-          extraBwrapArgs = [
-            "--bind \"$HOME\"/.local/share/DaVinciResolve/license ${davinci}/.license"
-            # Added from https://discourse.nixos.org/t/davinci-resolve-studio-install-issues/37699/44
-            "--bind /run/opengl-driver/etc/OpenCL /etc/OpenCL"
-          ];
-          runScript = "${bash}/bin/bash ${writeText "davinci-wrapper" ''
-            export QT_XKB_CONFIG_ROOT="${xkeyboard_config}/share/X11/xkb"
-            export QT_PLUGIN_PATH="${davinci}/libs/plugins:$QT_PLUGIN_PATH"
-            export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib:/usr/lib32:${davinci}/libs
-            unset QT_QPA_PLATFORM # Having this set to wayland causes issues
-            ${davinci}/bin/resolve
-          ''}";
-          extraInstallCommands = ''
-            mkdir -p $out/share/applications $out/share/icons/hicolor/128x128/apps
-            ln -s ${davinci}/share/applications/*.desktop $out/share/applications/
-            ln -s ${davinci}/graphics/DV_Resolve.png $out/share/icons/hicolor/128x128/apps/davinci-resolve-studio.png
-          '';
-          passthru = { inherit davinci; };
-        }
-      )
-    );
-})
+
+
+    final: prev:
+    let
+      originalResolve = prev.davinci-resolve-studio;
+     
+      # Tools from pkgs
+      bash = prev.bash;
+      writeText = prev.writeText;
+      xkeyboard_config = prev.xkeyboard_config;
+      perl = prev.perl;
+     
+      # Your patch set
+      patches = [
+        # JNE -> JMP
+        { old = ''\x03\x00\x89\x45\xFC\x83\x7D\xFC\x00\x74\x11\x48\x8B\x45\xC8\x8B''; new = ''\x03\x00\x89\x45\xFC\x83\x7D\xFC\x00\xEB\x11\x48\x8B\x45\xC8\x8B''; }
+        # JZ -> JMP
+        { old = ''\x74\x11\x48\x8B\x45\xC8\x8B\x55\xFC\x89\x50\x58\xB8\x00\x00\x00''; new = ''\xEB\x11\x48\x8B\x45\xC8\x8B\x55\xFC\x89\x50\x58\xB8\x00\x00\x00''; }
+        # SETB 1 -> SETB 0
+        { old = ''\x41\xb6\x01\x84\xc0\x0f\x84\xb0\x00\x00\x00\x48\x85\xdb\x74\x08\x45\x31\xf6\xe9\xa3\x00\x00\x00''; new = ''\x41\xb6\x00\x84\xc0\x0f\x84\xb0\x00\x00\x00\x48\x85\xdb\x74\x08\x45\x31\xf6\xe9\xa3\x00\x00\x00''; }
+      ];
+     
+      # Compose Perl substitutions: s|OLD|NEW|g; s|...|...|g; ...
+      perlSubs =
+        let lib = prev.lib;
+        in lib.concatStringsSep ";" (lib.map (p: ''s|${p.old}|${p.new}|g'') patches);
+     
+    in {
+      davinci-resolve-studio = originalResolve.override (old: {
+        buildFHSEnv = fhs:
+          (
+            let
+              # Patch the inner package where binaries live
+              davinci = fhs.passthru.davinci.overrideAttrs (innerOld: {
+                __intentionallyOverridingVersion = true;
+                version = innerOld.version + "-custom-patched-v1";
+     
+                nativeBuildInputs = (innerOld.nativeBuildInputs or []) ++ [ perl ];
+     
+                # Patch at postFixup when $out is fully assembled
+                postFixup = ''
+                  ${innerOld.postFixup or ""}
+     
+                  echo "Applying binary patches to Resolve binaries..."
+     
+                  # Helper to patch a file if it exists
+                  patch_if_exists() {
+                    local f="$1"
+                    if [ -f "$f" ]; then
+                      echo "Patching $f"
+                      # Read/write as raw bytes; operate on whole file
+                      ${perl}/bin/perl -0777 -Mbytes -pe '${perlSubs}' "$f" > "$f.patched" || {
+                        echo "ERROR: Patch failed for $f"
+                        exit 1
+                      }
+                      if [ ! -s "$f.patched" ]; then
+                        echo "ERROR: Patch produced empty output for $f"
+                        exit 1
+                      fi
+                      mv "$f.patched" "$f"
+                      chmod +x "$f" || true
+                    else
+                      echo "Skip: $f not found"
+                    fi
+                  }
+     
+                  # Common locations in the DaVinci package layout
+                  patch_if_exists "$out/bin/resolve"
+                  patch_if_exists "$out/opt/resolve/bin/resolve"
+     
+                  echo "Binary patching complete."
+                  echo "Installing license file…"
+                  mkdir -p $out/.license
+                  # Option B: embed the license text directly
+                  cat > $out/.license/blackmagic.lic <<'EOF'
+    LICENSE blackmagic davinciresolvestudio 999999 permanent uncounted
+    hostid=ANY issuer=CGP customer=CGP issued=28-dec-2023
+    akey=0000-0000-0000-0000 _ck=00 sig=\"00\"
+    EOF
+                '';
+              });
+            in
+            # Outer FHS wrapper referencing the patched inner package
+            old.buildFHSEnv (fhs // {
+              extraBwrapArgs = [
+              ];
+              runScript = "${bash}/bin/bash ${writeText "davinci-wrapper" ''
+                export QT_XKB_CONFIG_ROOT="${xkeyboard_config}/share/X11/xkb"
+                export QT_PLUGIN_PATH="${davinci}/libs/plugins:$QT_PLUGIN_PATH"
+                export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib:/usr/lib32:${davinci}/libs
+                unset QT_QPA_PLATFORM
+                ${davinci}/bin/resolve
+              ''}";
+              extraInstallCommands = ''
+                mkdir -p $out/share/applications $out/share/icons/hicolor/128x128/apps
+                ln -s ${davinci}/share/applications/*.desktop $out/share/applications/
+                ln -s ${davinci}/graphics/DV_Resolve.png $out/share/icons/hicolor/128x128/apps/davinci-resolve-studio.png
+              '';
+              passthru = { inherit davinci; };
+            })
+          );
+      });
+    }
+
