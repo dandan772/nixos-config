@@ -2,23 +2,17 @@ final: prev:
 let
   originalResolve = prev.davinci-resolve-studio;
 
-  # Ferramentas do nixpkgs
   bash = prev.bash;
   writeText = prev.writeText;
   xkeyboard_config = prev.xkeyboard_config;
   perl = prev.perl;
 
-  # Patch set
   patches = [
-    # JNE -> JMP
     { old = ''\x03\x00\x89\x45\xFC\x83\x7D\xFC\x00\x74\x11\x48\x8B\x45\xC8\x8B''; new = ''\x03\x00\x89\x45\xFC\x83\x7D\xFC\x00\xEB\x11\x48\x8B\x45\xC8\x8B''; }
-    # JZ -> JMP
     { old = ''\x74\x11\x48\x8B\x45\xC8\x8B\x55\xFC\x89\x50\x58\xB8\x00\x00\x00''; new = ''\xEB\x11\x48\x8B\x45\xC8\x8B\x55\xFC\x89\x50\x58\xB8\x00\x00\x00''; }
-    # SETB 1 -> SETB 0
     { old = ''\x41\xb6\x01\x84\xc0\x0f\x84\xb0\x00\x00\x00\x48\x85\xdb\x74\x08\x45\x31\xf6\xe9\xa3\x00\x00\x00''; new = ''\x41\xb6\x00\x84\xc0\x0f\x84\xb0\x00\x00\x00\x48\x85\xdb\x74\x08\x45\x31\xf6\xe9\xa3\x00\x00\x00''; }
   ];
 
-  # Compor substituições Perl
   perlSubs =
     let lib = prev.lib;
     in lib.concatStringsSep ";" (lib.map (p: ''s|${p.old}|${p.new}|g'') patches);
@@ -78,7 +72,6 @@ EOF
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib:/usr/lib32:${davinci}/libs
           unset QT_QPA_PLATFORM
 
-          # Forçar NVIDIA
           export __NV_PRIME_RENDER_OFFLOAD=1
           export __GLX_VENDOR_LIBRARY_NAME=nvidia
 

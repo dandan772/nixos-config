@@ -22,11 +22,9 @@
       modules = [
         ./hosts/nixos/default.nix
 
-        # Home Manager NixOS module
         home-manager.nixosModules.default
 
         {
-          # Configurações do Home Manager
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.users.dan =
@@ -34,9 +32,8 @@
         }
 
         {
-          # Overlays do Nixpkgs (Davinci, outros)
           nixpkgs.overlays = [
-            (import ./modules/system/davince.nix)
+            (import ./modules/system/davinci-resolve.nix)
           ];
         }
       ];
